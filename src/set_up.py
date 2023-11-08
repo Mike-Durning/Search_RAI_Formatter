@@ -244,7 +244,5 @@ if __name__ == "__main__":
     print("\n")
     print("|||===", client_list_execute)
     print("\n")
-    
-    config.delete_client(str(1))
-    
+        
     '''
