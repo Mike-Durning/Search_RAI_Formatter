@@ -22,8 +22,7 @@ class MyWindow(QMainWindow):
         self.client_list_dict, self.client_list_error = self.file_config.read_json_file(self.file_config.path_data["client_list_json"])
         self.settings_dict, self.settings_error = self.file_config.read_json_file(self.file_config.path_data["settings_json"])
         
-        # excel_manipulation.py
-        self.excel_manipulator = ExcelManipulator()
+        
                 
         self.setWindowTitle("RAI Formatter")
         self.setGeometry(175, 25, 1000, 700)
@@ -135,8 +134,8 @@ class MyWindow(QMainWindow):
             "Clear Output"            : (1, 2),
             
             # Bottom Toggle Row
-            "Toggle Short Search List": (2, 0),
-            "Toggle Department Column": (2, 1),
+            "Toggle Search List"      : (2, 0),
+            "Toggle Attempts Column"  : (2, 1),
             "Toggle Custom Directory" : (2, 2)
         }
 
@@ -158,10 +157,10 @@ class MyWindow(QMainWindow):
                 button_layout.addWidget(button, row, col)
                 button_layout.addWidget(toggle_button, row, col)
                 
-                if text == "Toggle Short Search List":
-                    toggle_button.stateChanged.connect(self.is_ssl)
-                elif text == "Toggle Department Column":
-                    toggle_button.stateChanged.connect(self.has_department)
+                if text == "Toggle Search List":
+                    toggle_button.stateChanged.connect(self.is_search_list)
+                elif text == "Toggle Attempts Column":
+                    toggle_button.stateChanged.connect(self.has_attempt)
                 elif text == "Toggle Custom Directory":
                     toggle_button.stateChanged.connect(self.is_default_path)
             else:
@@ -220,6 +219,7 @@ class MyWindow(QMainWindow):
         self.clear_repop()             
         
     def excel_manip(self):
+        self.excel_manipulator = ExcelManipulator()
         self.output_text1.append("Excel Manipulation Selected")
         search_list_format_info = self.file_config.search_list_format_info
         
@@ -230,8 +230,11 @@ class MyWindow(QMainWindow):
             chartsearch_path = self.file_config.path_data["chartsearch_xlsx"]
             toggled_states = self.file_config.toggle_states
             alphabet = self.file_config.alphabet
-            concat_excel_file = self.excel_manipulator.pandas_column_rearrange(chartsearch_path, toggled_states)
-            wb = self.excel_manipulator.openpyxl_format_workbook(concat_excel_file, alphabet, toggled_states)
+            concat_excel_file = self.excel_manipulator.pandas_column_clean(chartsearch_path, toggled_states)
+            wb, excel_dimensions = self.excel_manipulator.openpyxl_format_workbook(concat_excel_file, alphabet)
+            self.output_text2.append("")
+            for key, value in excel_dimensions.items():
+                self.output_text2.append(f"{key}: {value}") 
             self.file_config.save_xlsx(wb, self.file_config.search_list_format_info)
 
     def on_excel_macro(self):
@@ -247,24 +250,24 @@ class MyWindow(QMainWindow):
             self.output_text1.clear()
             self.populate_combo_box()
             
-    def is_ssl(self):
+    def is_search_list(self):
         if self.sender().isChecked():
-            self.output_text1.append("'Toggle Short Search List' is ON")
-            self.file_config.toggle_states["toggle_short_search_list"] = True
+            self.output_text1.append("'Toggle Search List is ON")
+            self.file_config.toggle_states["toggle_search_list"] = True
 
         else:
-            self.output_text1.append("'Toggle Short Search List' is OFF")
-            self.file_config.toggle_states["toggle_short_search_list"] = False
+            self.output_text1.append("'Toggle Search List is OFF")
+            self.file_config.toggle_states["toggle_search_list"] = False
         self.clear_repop()
 
-    def has_department(self):
+    def has_attempt(self):
         if self.sender().isChecked():
-            self.output_text1.append("'Toggle Department' is ON")
-            self.file_config.toggle_states["toggle_department"] = True
+            self.output_text1.append("'Toggle Attempts is ON")
+            self.file_config.toggle_states["toggle_attempt"] = True
 
         else:
-            self.output_text1.append("'Toggle Department' is OFF")
-            self.file_config.toggle_states["toggle_department"] = False
+            self.output_text1.append("'Toggle Attempts is OFF")
+            self.file_config.toggle_states["toggle_attempt"] = False
         self.clear_repop()
 
     def is_default_path(self):

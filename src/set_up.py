@@ -68,8 +68,8 @@ class Config:
         }
 
         self.toggle_states = {
-            "toggle_short_search_list": False,
-            "toggle_department"       : False,
+            "toggle_search_list"      : False,
+            "toggle_attempt"       : False,
             "toggle_custom_directory" : False
         }    
 
@@ -141,6 +141,13 @@ class Config:
                 return formatted_data, clients_data
         else:
             print("Clients JSON file does not exist.")
+            
+    def print_dict(self, dict_data):
+        formatted_data = ""
+        for key, value in dict_data.items():
+            formatted_data += f"{key}: {value}\n"
+        return formatted_data, dict_data
+        
 
     def select_client_by_value(self, selected_value):
         clients_json_path = Path(self.path_data["client_list_json"])
@@ -203,7 +210,6 @@ class Config:
         with json_file_path.open('w') as json_file:
             json.dump(client_list, json_file, indent=4)        
             
-
     def save_xlsx(self, wb, search_list_format_info):
             todays_date = search_list_format_info["date"]
             file_type = search_list_format_info["file_type"]
@@ -244,5 +250,5 @@ if __name__ == "__main__":
     print("\n")
     print("|||===", client_list_execute)
     print("\n")
-        
+    
     '''
