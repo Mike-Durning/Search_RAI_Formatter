@@ -106,30 +106,26 @@ class ExcelManipulator:
         col_num_str = str(col_num)
         row_num = len(concatenated_excel_file.axes[0])
         row_num_str = str(row_num + 1)
+        num_records = int(row_num_str) - 1
 
         col_to_letter = alphabet.get(col_num_str)
 
-        table_dimension = "A1:" + col_to_letter + row_num_str
+        table_dimension = str("A1:" + col_to_letter + row_num_str)
 
         excel_dimensions = {
                             'column_names'    : col_names,
                             'num_of_columns'  : col_num,
-                            'num_of_rows'     : row_num_str,
+                            'num_of_rows'     : num_records,
                             'table_dimensions': table_dimension
                             }
         
         age_index = col_names.index('Age')
-        date_index = col_names.index('Pro Date Sent To Client')
             
         age_index = str(age_index + 1)
-        date_index = str(date_index + 1)
+        
             
         col_to_letter_age = alphabet.get(age_index)
-            
-        col_to_letter_date = alphabet.get(date_index)
-
-            
-                    
+         
         age_range = 2 
                     
         for row_num in range(age_range, int(row_num_str) + 1):
@@ -137,7 +133,6 @@ class ExcelManipulator:
             age_range += 1
             
         col_to_letter = alphabet.get(str(col_num))
-        
         
         table = Table(displayName = "table", ref = table_dimension)
         
@@ -147,10 +142,13 @@ class ExcelManipulator:
             
         # Attatched the styles to table
         table.tableStyleInfo = style
+        if 'Pro Date Sent To Client' in col_names:
+            date_index = col_names.index('Pro Date Sent To Client')
+            date_index = str(date_index + 1)
+            col_to_letter_date = alphabet.get(date_index)
 
-
-        for cell in worksheet[col_to_letter_date]:
-            cell.alignment = Alignment(horizontal='center')  
+            for cell in worksheet[col_to_letter_date]:
+                cell.alignment = Alignment(horizontal='center')  
                     
         for cell in worksheet[col_to_letter_age]:
             cell.alignment = Alignment(horizontal='center') 

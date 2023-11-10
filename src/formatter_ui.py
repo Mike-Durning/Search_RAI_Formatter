@@ -19,9 +19,7 @@ class MyWindow(QMainWindow):
         self.file_config.save_file_path_to_json()
         self.file_config.save_client_list_to_json()
         self.file_config.save_settings_to_json()
-        
-        self.client_list_formatted, self.client_list_dict, client_list_json_path = self.file_config.print_dict_or_json(Path(self.file_config.path_data["client_list_json"]))
-                       
+                               
         self.setWindowTitle("RAI Formatter")
         self.setGeometry(175, 25, 1000, 700)
         
@@ -176,18 +174,29 @@ class MyWindow(QMainWindow):
     
     def output_2_update(self): 
         self.output_text2.clear()
-        search_list_info, search_list_info_dict = self.file_config.print_dict_or_json(self.file_config.search_list_format_info)
-        toggle_states, toggle_states_dict = self.file_config.print_dict_or_json(self.file_config.toggle_states)
-        self.output_text2.append(search_list_info)      
-        self.output_text2.append(toggle_states)
-        return search_list_info_dict, toggle_states_dict
+        self.search_list_info_formatted_str, self.search_list_info_dict = self.file_config.print_dict_or_json(self.file_config.search_list_format_info)
+        self.toggle_states_formatted_str, self.toggle_states_dict = self.file_config.print_dict_or_json(self.file_config.toggle_states)
+        self.output_text2.append(self.search_list_info_formatted_str)      
+        self.output_text2.append(self.toggle_states_formatted_str)
+        return self.search_list_info_dict, self.toggle_states_dict
+    
+    def final_output_2_update(self): 
+        self.output_text2.clear()
+        self.excel_dimensions_formatted_str, self.excel_dimensions_dict = self.file_config.print_dict_or_json(self.excel_dimensions)
+        self.output_text2.append(self.search_list_info_formatted_str)      
+        self.output_text2.append(self.toggle_states_formatted_str)
+        self.output_text2.append(self.excel_dimensions_formatted_str)
+        return self.search_list_info_dict, self.toggle_states_dict, self.excel_dimensions_dict
         
     def populate_client_list_menu(self): # Inputs client list into Output 2
+        
+        self.client_list_formatted, client_list_dict, client_list_json_path = self.file_config.print_dict_or_json(Path(self.file_config.path_data["client_list_json"]))
+        
         self.output_text2.clear()
         if self.client_list_formatted:
             self.output_text2.append(self.client_list_formatted)
               
-        client_dict = self.client_list_dict
+        client_dict = client_list_dict
         client_list = client_dict.values() 
         self.drop_menu.addItems(client_list)
     
@@ -217,15 +226,14 @@ class MyWindow(QMainWindow):
             self.output_text1.append("No Client Selected")
         
         else:
-            chartsearch_path = self.file_config.path_data["chartsearch_xlsx"]
-            toggled_states = self.file_config.toggle_states
-            alphabet = self.file_config.alphabet
-            concat_excel_file = self.excel_manipulator.pandas_column_clean(chartsearch_path, toggled_states)
-            wb, excel_dimensions = self.excel_manipulator.openpyxl_format_workbook(concat_excel_file, alphabet)
-            self.output_text2.append("")
-            for key, value in excel_dimensions.items():
-                self.output_text2.append(f"{key}: {value}") 
+            chartsearch_path = Path(self.file_config.path_data["chartsearch_xlsx"])
+
+            concat_excel_file = self.excel_manipulator.pandas_column_clean(chartsearch_path, self.file_config.toggle_states)
+            wb, self.excel_dimensions = self.excel_manipulator.openpyxl_format_workbook(concat_excel_file, self.file_config.alphabet)
+            
             self.file_config.save_xlsx(wb, self.file_config.search_list_format_info)
+            
+        self.final_output_2_update()
 
     def on_excel_macro(self):
         self.output_text1.append("Excel Macro Selected")
