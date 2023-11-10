@@ -69,7 +69,7 @@ class Config:
 
         self.toggle_states = {
             "toggle_search_list"      : False,
-            "toggle_attempt"       : False,
+            "toggle_attempt"          : False,
             "toggle_custom_directory" : False
         }    
 
@@ -113,42 +113,27 @@ class Config:
         else:
             return f"{client_list_json} already exists. Skipping the saving process."
         
-    def read_json_file(self, json_file):
-        try:
-            with open(json_file, 'r') as file:
-                data = json.load(file)
-                if isinstance(data, dict):
-                    return data, None
-                else:
-                    return None, "JSON file does not contain a dictionary."
-        except FileNotFoundError:
-            return None, f"File not found: {json_file}"
-        except Exception as e:
-            return None, f"An error occurred: {str(e)}"
-
     def manual_return_path(self):
         return_dir = askdirectory(title="Select Folder")
         return return_dir
 
-    def print_json(self, path):
-        clients_json_path = Path(path)
-        if clients_json_path.exists():
-            with clients_json_path.open('r') as json_file:
-                clients_data = json.load(json_file)
-                formatted_data = ""
-                for key, value in clients_data.items():
-                    formatted_data += f"{key}: {value}\n"
-                return formatted_data, clients_data
+    def print_dict_or_json(self, dict_or_json_path):
+        if isinstance(dict_or_json_path, dict):
+            formatted_data = ""
+            for key, value in dict_or_json_path.items():
+                formatted_data += f"{key}: {value}\n"
+            return formatted_data, dict_or_json_path
+        elif isinstance(dict_or_json_path, Path):
+            if dict_or_json_path.exists():
+                with dict_or_json_path.open('r') as json_file:
+                    json_dict = json.load(json_file)
+                    formatted_data = ""
+                    for key, value in json_dict.items():
+                        formatted_data += f"{key}: {value}\n"
+                    return formatted_data, json_dict, dict_or_json_path
         else:
-            print("Clients JSON file does not exist.")
+            return "Dictionary or JSON file does not exist."
             
-    def print_dict(self, dict_data):
-        formatted_data = ""
-        for key, value in dict_data.items():
-            formatted_data += f"{key}: {value}\n"
-        return formatted_data, dict_data
-        
-
     def select_client_by_value(self, selected_value):
         clients_json_path = Path(self.path_data["client_list_json"])
 
@@ -232,23 +217,3 @@ class Config:
 
             os.startfile(file_path)
             #os.startfile(folder_path)
-
-
-'''
-if __name__ == "__main__":
-    config = Config()
-    config.instantiate_dicts()
-    config.folders_exist()
-    file_path_execute = config.save_file_path_to_json()
-    client_list_execute = config.save_client_list_to_json()
-    settings_execute = config.save_settings_to_json()
-    
-    print("\n")
-    print("|||===", file_path_execute)
-    print("\n")
-    print("|||===", settings_execute)
-    print("\n")
-    print("|||===", client_list_execute)
-    print("\n")
-    
-    '''
