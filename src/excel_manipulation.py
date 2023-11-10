@@ -18,7 +18,8 @@ class ExcelManipulator:
                                        'RAI Reconciliation Comments',
                                        'Status'],
                         
-            'left_columns'          : ['DOS',
+            'left_columns'          : ['Client',
+                                       'DOS',
                                        'Account #',
                                        'MRN', 
                                        'Patient Name',
@@ -67,7 +68,9 @@ class ExcelManipulator:
         
         if 'Pro Date Sent To Client' not in beginning_col_names:
             right_columns_chartsearch = self.column_lists['right_columns'].remove('Pro Date Sent To Client') 
-        
+
+        if 'Client' not in beginning_col_names:
+            left_columns_chartsearch = self.column_lists['left_columns'].remove('Client') 
                       
         if 'UAC Reason 1' and 'UAC Reason 2' in beginning_col_names:
             middle_columns = self.column_lists['multiple_uac']
