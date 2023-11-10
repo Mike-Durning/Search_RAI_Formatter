@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QTabWidget, QMainWindow, QWidget, QVBoxLayout, QGrid
 from PyQt6.QtWidgets import QApplication, QComboBox, QPushButton, QCheckBox, QTextEdit, QHBoxLayout  # noqa: E501
 #from PyQt6.QtGui  import QIcon
 import sys
+from pathlib import Path
 from set_up import Config
 from excel_macro import excel_macro
 from excel_manipulation import ExcelManipulator
@@ -18,12 +19,9 @@ class MyWindow(QMainWindow):
         self.file_config.save_file_path_to_json()
         self.file_config.save_client_list_to_json()
         self.file_config.save_settings_to_json()
-        self.file_path_dict, self.file_path_error = self.file_config.read_json_file(self.file_config.path_data["config_file_path_json"])
-        self.client_list_dict, self.client_list_error = self.file_config.read_json_file(self.file_config.path_data["client_list_json"])
-        self.settings_dict, self.settings_error = self.file_config.read_json_file(self.file_config.path_data["settings_json"])
         
-        
-                
+        self.client_list_formatted, self.client_list_dict, client_list_json_path = self.file_config.print_dict_or_json(Path(self.file_config.path_data["client_list_json"]))
+                       
         self.setWindowTitle("RAI Formatter")
         self.setGeometry(175, 25, 1000, 700)
         
@@ -174,49 +172,41 @@ class MyWindow(QMainWindow):
                 elif text == "Clear Output":
                     button.clicked.connect(self.clear_output)
 
-        self.populate_combo_box()
-        
-    def populate_combo_box(self):
+        self.populate_client_list_menu()
+    
+    def output_2_update(self): 
         self.output_text2.clear()
-        client_json = self.file_config.print_json(self.file_config.path_data["client_list_json"])
-        if client_json:
-            self.output_text2.append(client_json[0])
+        search_list_info, search_list_info_dict = self.file_config.print_dict_or_json(self.file_config.search_list_format_info)
+        toggle_states, toggle_states_dict = self.file_config.print_dict_or_json(self.file_config.toggle_states)
+        self.output_text2.append(search_list_info)      
+        self.output_text2.append(toggle_states)
+        return search_list_info_dict, toggle_states_dict
+        
+    def populate_client_list_menu(self): # Inputs client list into Output 2
+        self.output_text2.clear()
+        if self.client_list_formatted:
+            self.output_text2.append(self.client_list_formatted)
               
-        client_list = client_json[1]
-        client_list = client_list.values() 
+        client_dict = self.client_list_dict
+        client_list = client_dict.values() 
         self.drop_menu.addItems(client_list)
     
-    def clear_repop(self):
-        self.output_text2.clear()
-    
-        value = self.drop_menu.currentText()
+    def drop_menu_select(self):   
+        selected = self.drop_menu.currentText()
         
-        if not value:
+        if not selected:
             self.output_text1.append("No client selected in the dropdown.")
-            return
+    
+        self.output_text1.append(f"Selected Client: {selected}")
         
-        self.output_text1.append(f"Selected Client: {value}")
-        
-        selected_client = self.file_config.select_client_by_value(value)
+        selected_client = self.file_config.select_client_by_value(selected)
         
         if selected_client is not None:
-            print(f"\nSelected Client: {selected_client}\n") 
-            self.file_config.search_list_format_info["client_name"] = selected_client
-            
-            for key, value in self.file_config.search_list_format_info.items():
-                self.output_text2.append(f"{key}: {value}")  
-            
-            self.output_text2.append("")
-            
-            for key, value in self.file_config.toggle_states.items():
-                self.output_text2.append(f"{key}: {value}")  
-                
-        else:
-            print("\nInvalid option.\n")
+            self.file_config.search_list_format_info["client_name"] = selected_client               
     
     def on_drop_menu_execute(self):
-        self.populate_combo_box()  
-        self.clear_repop()             
+        self.drop_menu_select()
+        self.output_2_update()             
         
     def excel_manip(self):
         self.excel_manipulator = ExcelManipulator()
@@ -248,7 +238,7 @@ class MyWindow(QMainWindow):
 
     def clear_output(self):
             self.output_text1.clear()
-            self.populate_combo_box()
+            self.populate_client_list_menu()
             
     def is_search_list(self):
         if self.sender().isChecked():
@@ -258,7 +248,7 @@ class MyWindow(QMainWindow):
         else:
             self.output_text1.append("'Toggle Search List is OFF")
             self.file_config.toggle_states["toggle_search_list"] = False
-        self.clear_repop()
+        self.output_2_update()
 
     def has_attempt(self):
         if self.sender().isChecked():
@@ -268,7 +258,7 @@ class MyWindow(QMainWindow):
         else:
             self.output_text1.append("'Toggle Attempts is OFF")
             self.file_config.toggle_states["toggle_attempt"] = False
-        self.clear_repop()
+        self.output_2_update()
 
     def is_default_path(self):
         if self.sender().isChecked():
@@ -281,7 +271,7 @@ class MyWindow(QMainWindow):
             self.output_text1.append("'Toggle Custom Directory is OFF")
             self.file_config.toggle_states["toggle_custom_directory"] = False
             self.file_config.search_list_format_info["custom_directory"] = None
-        self.clear_repop()
+        self.output_2_update()
 
 # FOR ADDING AND REMOVE CLIENT FROM JSON         
     def on_button_click(self, button_text):
@@ -291,7 +281,7 @@ class MyWindow(QMainWindow):
                 self.file_config.add_client(client_name)
                 self.output_text1.append(f"Added client: {client_name}")
                 self.drop_menu.clear() 
-            self.populate_combo_box()
+            self.populate_client_list_menu()
         
         elif button_text == "Remove Client":
             client_index, ok = QInputDialog.getText(self, "Remove Client", "Enter Client's Index:")
@@ -299,10 +289,8 @@ class MyWindow(QMainWindow):
                 self.file_config.delete_client(client_index)
                 self.output_text1.append(f"Removed Client at Index: {client_index}")
                 self.drop_menu.clear() 
-            self.populate_combo_box()
-
-
-            
+            self.populate_client_list_menu()
+   
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MyWindow()
