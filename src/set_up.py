@@ -6,8 +6,12 @@ import os
 
 class Config:
     def __init__(self):
-        self.src_folder = Path(__file__).resolve().parent
-        self.project_folder = self.src_folder.parent
+        if getattr(sys, 'frozen', False):
+            self.project_folder = Path(sys.executable).resolve().parent
+            self.src_folder = Path(sys._MEIPASS).resolve()
+        else:
+            self.src_folder = Path(__file__).resolve().parent
+            self.project_folder = self.src_folder.parent
         
         self.config_folder      = self.project_folder / "config"
         self.assets_folder      = self.project_folder / "assets"
@@ -209,3 +213,4 @@ class Config:
             wb.close()
 
             os.startfile(file_path)
+
