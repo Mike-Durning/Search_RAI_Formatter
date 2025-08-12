@@ -6,8 +6,6 @@ import os
 
 class Config:
     def __init__(self):
-        
-        
         self.src_folder = Path(__file__).resolve().parent
         self.project_folder = self.src_folder.parent
         
@@ -61,7 +59,7 @@ class Config:
                 
         self.search_list_format_info = {
             "client_name"      : "NO CLIENT SELECTED",
-            "format"           : "Search List",
+            "format"           : "Default - RAI Report",
             "date"             : datetime.now().strftime('%m.%d.%Y'),
             "file_type"        : ".xlsx",
             "custom_directory" : None
@@ -112,7 +110,7 @@ class Config:
                 return f"Error while saving to JSON: {e}"
         else:
             return f"{client_list_json} already exists. Skipping the saving process."
-        
+
     def manual_return_path(self):
         return_dir = askdirectory(title="Select Folder")
         return return_dir
@@ -136,7 +134,6 @@ class Config:
             
     def select_client_by_value(self, selected_value):
         clients_json_path = Path(self.path_data["client_list_json"])
-
         if clients_json_path.exists():
             with clients_json_path.open('r') as json_file:
                 clients_data = json.load(json_file)
@@ -149,9 +146,7 @@ class Config:
             return None
 
     def delete_client(self, key_to_delete):
-        
         json_file_path = Path(self.path_data["client_list_json"])
-
         try:
             with json_file_path.open('r') as json_file:
                 client_list = json.load(json_file)
@@ -161,7 +156,6 @@ class Config:
 
         if key_to_delete in client_list:
             del client_list[key_to_delete]
-
             updated_clients_data = {}
             sorted_keys = sorted(map(int, client_list.keys()))
             for index, old_key in enumerate(sorted_keys):
@@ -174,9 +168,7 @@ class Config:
             print(f"Key {key_to_delete} does not exist in the clients JSON.")
             
     def add_client(self, name_to_add):
-        
         json_file_path = Path(self.path_data["client_list_json"])
-
         try:
             with json_file_path.open('r') as json_file:
                 client_list = json.load(json_file)
@@ -196,24 +188,24 @@ class Config:
             json.dump(client_list, json_file, indent=4)        
             
     def save_xlsx(self, wb, search_list_format_info):
+
+
             todays_date = search_list_format_info["date"]
             file_type = search_list_format_info["file_type"]
             search_list = search_list_format_info["format"]
             client_name = search_list_format_info["client_name"]
             download_directory = search_list_format_info["custom_directory"]
-
+            
             filename_save = f"{client_name} {search_list} {todays_date}{file_type}"
+
             
             if download_directory is None:
                 download_directory = askdirectory(title="Select Client Folder")
 
             folder_path = Path(download_directory)
-            
                 
             file_path = folder_path / filename_save
             wb.save(file_path)
             wb.close()
 
-
             os.startfile(file_path)
-            #os.startfile(folder_path)
