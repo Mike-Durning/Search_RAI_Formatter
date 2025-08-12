@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 import json
 import os
+import sys
 
 class Config:
     def __init__(self):
@@ -213,4 +214,5 @@ class Config:
             wb.close()
 
             os.startfile(file_path)
+
 
