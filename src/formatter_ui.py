@@ -189,7 +189,6 @@ class MyWindow(QMainWindow):
         return self.search_list_info_dict, self.toggle_states_dict, self.excel_dimensions_dict
         
     def populate_client_list_menu(self): # Inputs client list into Output 2
-        
         self.client_list_formatted, client_list_dict, client_list_json_path = self.file_config.print_dict_or_json(Path(self.file_config.path_data["client_list_json"]))
         
         self.output_text2.clear()
@@ -229,6 +228,7 @@ class MyWindow(QMainWindow):
             chartsearch_path = Path(self.file_config.path_data["chartsearch_xlsx"])
 
             concat_excel_file = self.excel_manipulator.pandas_column_clean(chartsearch_path, self.file_config.toggle_states)
+            
             wb, self.excel_dimensions = self.excel_manipulator.openpyxl_format_workbook(concat_excel_file, self.file_config.alphabet)
             
             self.file_config.save_xlsx(wb, self.file_config.search_list_format_info)
@@ -252,17 +252,17 @@ class MyWindow(QMainWindow):
         if self.sender().isChecked():
             self.output_text1.append("'Toggle Search List is ON")
             self.file_config.toggle_states["toggle_search_list"] = True
-
+            self.file_config.toggle_states["format"] = "Search List"
         else:
             self.output_text1.append("'Toggle Search List is OFF")
             self.file_config.toggle_states["toggle_search_list"] = False
+            self.file_config.toggle_states["format"] = "RAI Report"
         self.output_2_update()
 
     def has_attempt(self):
         if self.sender().isChecked():
             self.output_text1.append("'Toggle Attempts is ON")
             self.file_config.toggle_states["toggle_attempt"] = True
-
         else:
             self.output_text1.append("'Toggle Attempts is OFF")
             self.file_config.toggle_states["toggle_attempt"] = False
@@ -274,7 +274,6 @@ class MyWindow(QMainWindow):
             custom_dir = self.file_config.manual_return_path()
             self.file_config.search_list_format_info["custom_directory"] = custom_dir
             self.file_config.toggle_states["toggle_custom_directory"] = True
-
         else:
             self.output_text1.append("'Toggle Custom Directory is OFF")
             self.file_config.toggle_states["toggle_custom_directory"] = False
