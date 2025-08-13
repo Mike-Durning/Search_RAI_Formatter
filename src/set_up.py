@@ -64,7 +64,7 @@ class Config:
                 
         self.search_list_format_info = {
             "client_name"      : "NO CLIENT SELECTED",
-            "format"           : "Default - RAI Report",
+            "format"           : "RAI Report",
             "date"             : datetime.now().strftime('%m.%d.%Y'),
             "file_type"        : ".xlsx",
             "custom_directory" : None
@@ -214,5 +214,6 @@ class Config:
             wb.close()
 
             os.startfile(file_path)
+
 
 
