@@ -252,11 +252,11 @@ class MyWindow(QMainWindow):
         if self.sender().isChecked():
             self.output_text1.append("'Toggle Search List is ON")
             self.file_config.toggle_states["toggle_search_list"] = True
-            self.file_config.toggle_states["format"] = "Search List"
+            self.file_config.search_list_format_info["format"] = "Search List"
         else:
             self.output_text1.append("'Toggle Search List is OFF")
             self.file_config.toggle_states["toggle_search_list"] = False
-            self.file_config.toggle_states["format"] = "RAI Report"
+            self.file_config.search_list_format_info["format"] = "RAI Report"
         self.output_2_update()
 
     def has_attempt(self):
@@ -303,3 +303,4 @@ if __name__ == '__main__':
     window = MyWindow()
     window.show()
     sys.exit(app.exec())
+
